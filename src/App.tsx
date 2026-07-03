@@ -5,16 +5,28 @@ import SearchView from './components/SearchView'
 import LyricsPanel from './lyrics/LyricsPanel'
 import PlayerBar from './player/PlayerBar'
 import Visualizer from './components/Visualizer'
+import Login from './components/Login'
 import { usePlayer, audio } from './player/usePlayer'
-import { getLyrics } from './api/netease'
-import { parseLRC } from './api/netease'
+import { getLyrics, parseLRC } from './api/netease'
 import type { Track, Lyrics } from './api/types'
+
+const API = 'http://localhost:3001/api'
 
 function App() {
   const player = usePlayer()
   const [activeView, setActiveView] = useState<'search' | 'lyrics'>('search')
   const [lyrics, setLyrics] = useState<Lyrics | null>(null)
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null) // null = 检查中
 
+  // 检查登录状态
+  useEffect(() => {
+    fetch(`${API}/login/status`)
+      .then(r => r.json())
+      .then(data => setLoggedIn(data.loggedIn))
+      .catch(() => setLoggedIn(false))
+  }, [])
+
+  // 加载歌词
   useEffect(() => {
     if (player.currentTrack) {
       getLyrics(player.currentTrack.id)
@@ -36,6 +48,24 @@ function App() {
   const toggleLyrics = useCallback(() => {
     setActiveView(prev => prev === 'lyrics' ? 'search' : 'lyrics')
   }, [])
+
+  // 加载中
+  if (loggedIn === null) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-surface-0">
+        <div className="w-5 h-5 border-2 border-stone-700 border-t-stone-400 rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  // 未登录 — 显示登录页
+  if (!loggedIn) {
+    return (
+      <div className="h-screen bg-surface-0 noise-overlay">
+        <Login onLogin={() => setLoggedIn(true)} onSkip={() => setLoggedIn(true)} />
+      </div>
+    )
+  }
 
   return (
     <Layout
