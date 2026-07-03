@@ -190,7 +190,7 @@ app.get('/api/lyric', async (req, res) => {
 app.get('/api/playlist', async (req, res) => {
   try {
     const { id } = req.query
-    const r = await fetch(`${API_BASE}/api/playlist/detail?id=${id}`, {
+    const r = await fetch(`${API_BASE}/api/v6/playlist/detail?id=${id}&n=100`, {
       headers: getHeaders(),
     })
     const data = await r.json()
@@ -204,12 +204,22 @@ app.get('/api/playlist', async (req, res) => {
 // 推荐歌单
 app.get('/api/top/playlist', async (req, res) => {
   try {
-    const { limit = 12, order = 'hot', offset = 0 } = req.query
-    const r = await fetch(`${API_BASE}/api/top/playlist?limit=${limit}&order=${order}&offset=${offset}`, {
+    const { limit = 12 } = req.query
+    const r = await fetch(`${API_BASE}/api/personalized/playlist?limit=${limit}`, {
       headers: getHeaders(),
     })
     const data = await r.json()
-    res.json(data)
+    // 转换为统一格式
+    res.json({
+      playlists: (data.result || []).map((p) => ({
+        id: p.id,
+        name: p.name,
+        coverImgUrl: p.picUrl,
+        playCount: p.playCount,
+        trackCount: p.trackCount,
+        description: p.copywriter || '',
+      }))
+    })
   } catch (e) {
     console.error('获取推荐歌单失败:', e)
     res.status(500).json({ error: '获取推荐歌单失败' })
@@ -228,6 +238,20 @@ app.get('/api/top/song', async (req, res) => {
   } catch (e) {
     console.error('获取新歌失败:', e)
     res.status(500).json({ error: '获取新歌失败' })
+  }
+})
+
+// 排行榜列表
+app.get('/api/toplist', async (req, res) => {
+  try {
+    const r = await fetch(`${API_BASE}/api/toplist/detail`, {
+      headers: getHeaders(),
+    })
+    const data = await r.json()
+    res.json(data)
+  } catch (e) {
+    console.error('获取排行榜失败:', e)
+    res.status(500).json({ error: '获取排行榜失败' })
   }
 })
 
