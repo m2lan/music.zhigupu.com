@@ -35,11 +35,7 @@ export default function TopBar({ searchQuery, onSearchChange, onSearch, loggedIn
       <div className="flex-1" />
 
       {/* 用户 */}
-      {loggedIn ? (
-        <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-          <span className="text-xs">♪</span>
-        </div>
-      ) : (
+      {!loggedIn && (
         <button
           onClick={onLogin}
           className="px-4 py-1.5 text-xs bg-white text-black rounded-full font-medium hover:bg-white/90 transition-colors"
