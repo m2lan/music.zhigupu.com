@@ -104,7 +104,7 @@ function App() {
               <SearchView
                 onPlayTrack={handlePlayTrack}
                 currentTrack={player.currentTrack}
-                initialQuery={searchQuery}
+                query={searchQuery}
               />
             )}
             {view === 'ranking' && (

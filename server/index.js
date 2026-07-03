@@ -186,14 +186,37 @@ app.get('/api/lyric', async (req, res) => {
   }
 })
 
-// 获取歌单详情
+// 获取歌单详情（含全部歌曲）
 app.get('/api/playlist', async (req, res) => {
   try {
     const { id } = req.query
+
+    // 获取歌单基本信息 + trackIds
     const r = await fetch(`${API_BASE}/api/v6/playlist/detail?id=${id}&n=100`, {
       headers: getHeaders(),
     })
     const data = await r.json()
+    const playlist = data.playlist
+
+    // 如果有 trackIds 但 tracks 不完整，用 trackIds 批量获取
+    const trackIds = playlist.trackIds || []
+    const existingTracks = playlist.tracks || []
+
+    if (trackIds.length > existingTracks.length) {
+      // 每次最多获取 100 首
+      const ids = trackIds.map((t) => t.id)
+      const batches = []
+      for (let i = 0; i < ids.length; i += 100) {
+        const batch = ids.slice(i, i + 100)
+        const songR = await fetch(`${API_BASE}/api/song/detail?ids=${JSON.stringify(batch)}`, {
+          headers: getHeaders(),
+        })
+        const songData = await songR.json()
+        batches.push(...(songData.songs || []))
+      }
+      playlist.tracks = batches
+    }
+
     res.json(data)
   } catch (e) {
     console.error('获取歌单失败:', e)

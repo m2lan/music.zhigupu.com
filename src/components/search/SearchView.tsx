@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Search, Play, Clock } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { searchSongs, getSongDetails } from '@/api/netease'
 import type { Track } from '@/api/types'
 import { formatTime } from '@/utils/format'
@@ -8,7 +7,7 @@ import { formatTime } from '@/utils/format'
 interface Props {
   onPlayTrack: (track: Track, queue: Track[]) => void
   currentTrack: Track | null
-  initialQuery?: string
+  query: string
 }
 
 function normalizeTrack(raw: any): Track {
@@ -31,56 +30,41 @@ function mergeDetails(tracks: Track[], details: any[]): Track[] {
   })
 }
 
-export default function SearchView({ onPlayTrack, currentTrack, initialQuery }: Props) {
-  const [query, setQuery] = useState(initialQuery || '')
+export default function SearchView({ onPlayTrack, currentTrack, query }: Props) {
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
-  const autoSearched = useRef(false)
+  const lastQuery = useRef('')
 
-  // 从顶部搜索框进入时自动搜索
   useEffect(() => {
-    if (initialQuery && !autoSearched.current) {
-      autoSearched.current = true
-      // 直接用 initialQuery 搜索，不依赖 query state
-      doSearch(initialQuery)
-    }
-  }, [initialQuery])
+    if (!query.trim() || query === lastQuery.current) return
+    lastQuery.current = query
 
-  const doSearch = useCallback(async (q: string) => {
-    if (!q.trim()) return
     setLoading(true)
     setSearched(true)
-    try {
-      const data = await searchSongs(q.trim())
-      const songs = (data.result?.songs || []).map(normalizeTrack)
-      if (songs.length > 0) {
-        const details = await getSongDetails(songs.map((s: Track) => s.id))
-        setTracks(mergeDetails(songs, details.songs || []))
-      } else {
+    searchSongs(query.trim())
+      .then(data => {
+        const songs = (data.result?.songs || []).map(normalizeTrack)
+        if (songs.length > 0) {
+          return getSongDetails(songs.map((s: Track) => s.id))
+            .then(details => setTracks(mergeDetails(songs, details.songs || [])))
+        }
         setTracks([])
-      }
-    } catch (e) {
-      console.error('搜索失败:', e)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const handleSearch = useCallback(() => doSearch(query), [query, doSearch])
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [query])
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="relative max-w-lg">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && handleSearch()}
-          placeholder="搜索音乐、歌手..."
-          className="pl-9 h-10"
-        />
-      </div>
+    <div className="p-6">
+      {/* 搜索结果标题 */}
+      {searched && (
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground">
+            搜索 "<span className="text-foreground">{query}</span>" 的结果
+          </p>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center h-32">
@@ -93,7 +77,6 @@ export default function SearchView({ onPlayTrack, currentTrack, initialQuery }: 
         </div>
       ) : tracks.length > 0 ? (
         <div className="space-y-1">
-          {/* 表头 */}
           <div className="flex items-center px-3 py-2 text-xs text-muted-foreground border-b border-border">
             <span className="w-10 text-center">#</span>
             <span className="flex-1">标题</span>
@@ -157,7 +140,7 @@ export default function SearchView({ onPlayTrack, currentTrack, initialQuery }: 
       ) : (
         <div className="flex flex-col items-center justify-center h-32 text-muted-foreground/40">
           <Search className="w-8 h-8 mb-2" />
-          <p className="text-sm">输入关键词开始探索</p>
+          <p className="text-sm">在顶部搜索框输入关键词</p>
         </div>
       )}
     </div>
