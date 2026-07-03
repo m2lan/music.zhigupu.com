@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { Track } from '@/api/types'
 import { formatTime, formatPlayCount } from '@/utils/format'
 
-const API = 'http://localhost:3001/api'
+import { API_BASE as API } from '@/api/config'
 
 interface PlaylistInfo {
   id: number

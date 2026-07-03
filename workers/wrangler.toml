@@ -1,0 +1,16 @@
+name = "netease-api"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+
+# KV 命名空间用于存储 session cookies
+# 首次部署前需要运行: wrangler kv namespace create SESSION
+# 然后把生成的 id 填到下面
+[[kv_namespaces]]
+binding = "SESSION"
+id = "b0328eb08fad4c0a9cf4426383d2cc97"
+
+# 本地开发时使用 preview_id
+[env.dev]
+[[env.dev.kv_namespaces]]
+binding = "SESSION"
+id = "preview"

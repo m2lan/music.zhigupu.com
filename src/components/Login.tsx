@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Music, Headphones, Disc3 } from 'lucide-react'
 
-const API = 'http://localhost:3001/api'
+import { API_BASE as API } from '@/api/config'
 
 interface Props {
   onLogin: () => void

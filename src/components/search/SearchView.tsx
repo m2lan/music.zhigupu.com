@@ -36,13 +36,19 @@ export default function SearchView({ onPlayTrack, currentTrack, query }: Props) 
   const [searched, setSearched] = useState(false)
   const lastQuery = useRef('')
 
+  // 组件卸载时重置
   useEffect(() => {
-    if (!query.trim() || query === lastQuery.current) return
-    lastQuery.current = query
+    return () => { lastQuery.current = '' }
+  }, [])
+
+  useEffect(() => {
+    const trimmed = query.trim()
+    if (!trimmed || trimmed === lastQuery.current) return
+    lastQuery.current = trimmed
 
     setLoading(true)
     setSearched(true)
-    searchSongs(query.trim())
+    searchSongs(trimmed)
       .then(data => {
         const songs = (data.result?.songs || []).map(normalizeTrack)
         if (songs.length > 0) {

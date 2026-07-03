@@ -3,7 +3,7 @@ import PlaylistCard from './PlaylistCard'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ChevronRight } from 'lucide-react'
 
-const API = 'http://localhost:3001/api'
+import { API_BASE as API } from '@/api/config'
 
 interface Playlist {
   id: number

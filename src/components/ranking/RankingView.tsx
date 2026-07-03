@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import type { Track } from '@/api/types'
 import { formatTime } from '@/utils/format'
 
-const API = 'http://localhost:3001/api'
+import { API_BASE as API } from '@/api/config'
 
 const RANKINGS = [
   { id: 19723756, name: '飙升榜', icon: Zap, color: 'text-orange-400' },

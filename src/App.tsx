@@ -15,7 +15,7 @@ import { getLyrics, parseLRC } from '@/api/netease'
 import { addRecentTrack } from '@/utils/recent'
 import type { Track, Lyrics } from '@/api/types'
 
-const API = 'http://localhost:3001/api'
+import { API_BASE as API } from '@/api/config'
 
 function App() {
   const player = usePlayer()
