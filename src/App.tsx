@@ -6,11 +6,13 @@ import DiscoverView from '@/components/discover/DiscoverView'
 import SearchView from '@/components/search/SearchView'
 import PlaylistDetail from '@/components/playlist/PlaylistDetail'
 import RankingView from '@/components/ranking/RankingView'
+import RecentView from '@/components/recent/RecentView'
 import LyricsPanel from '@/components/lyrics/LyricsPanel'
 import Login from '@/components/Login'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { usePlayer } from '@/player/usePlayer'
 import { getLyrics, parseLRC } from '@/api/netease'
+import { addRecentTrack } from '@/utils/recent'
 import type { Track, Lyrics } from '@/api/types'
 
 const API = 'http://localhost:3001/api'
@@ -31,9 +33,10 @@ function App() {
       .catch(() => setLoggedIn(false))
   }, [])
 
-  // 加载歌词
+  // 加载歌词 + 记录最近播放
   useEffect(() => {
     if (player.currentTrack) {
+      addRecentTrack(player.currentTrack)
       getLyrics(player.currentTrack.id)
         .then(data => {
           const lines = parseLRC(data.lrc?.lyric || '')
@@ -61,7 +64,6 @@ function App() {
     setView('playlist')
   }, [])
 
-  // 加载中
   if (loggedIn === null) {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
@@ -70,7 +72,6 @@ function App() {
     )
   }
 
-  // 未登录
   if (!loggedIn) {
     return (
       <TooltipProvider>
@@ -116,6 +117,12 @@ function App() {
               <PlaylistDetail
                 playlistId={playlistId}
                 onBack={() => setView('discover')}
+                onPlayTrack={handlePlayTrack}
+                currentTrack={player.currentTrack}
+              />
+            )}
+            {view === 'recent' && (
+              <RecentView
                 onPlayTrack={handlePlayTrack}
                 currentTrack={player.currentTrack}
               />

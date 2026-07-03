@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Play, ArrowLeft, Clock, Headphones } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Track } from '@/api/types'
 import { formatTime, formatPlayCount } from '@/utils/format'
@@ -98,14 +97,17 @@ export default function PlaylistDetail({ playlistId, onBack, onPlayTrack, curren
           )}
 
           <div className="mt-4">
-            <Button
-              size="sm"
-              onClick={() => tracks.length > 0 && onPlayTrack(tracks[0], tracks)}
-              className="gap-2"
+            <button
+              onClick={() => {
+                if (tracks.length > 0) {
+                  onPlayTrack(tracks[0], tracks)
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black text-sm font-medium rounded-full hover:bg-white/90 transition-colors cursor-pointer"
             >
               <Play className="w-4 h-4" />
               播放全部
-            </Button>
+            </button>
           </div>
         </div>
       </div>

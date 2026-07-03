@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { Search, Play, Clock } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { searchSongs, getSongDetails } from '@/api/netease'
@@ -36,13 +36,23 @@ export default function SearchView({ onPlayTrack, currentTrack, initialQuery }: 
   const [tracks, setTracks] = useState<Track[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const autoSearched = useRef(false)
 
-  const handleSearch = useCallback(async () => {
-    if (!query.trim()) return
+  // 从顶部搜索框进入时自动搜索
+  useEffect(() => {
+    if (initialQuery && !autoSearched.current) {
+      autoSearched.current = true
+      // 直接用 initialQuery 搜索，不依赖 query state
+      doSearch(initialQuery)
+    }
+  }, [initialQuery])
+
+  const doSearch = useCallback(async (q: string) => {
+    if (!q.trim()) return
     setLoading(true)
     setSearched(true)
     try {
-      const data = await searchSongs(query.trim())
+      const data = await searchSongs(q.trim())
       const songs = (data.result?.songs || []).map(normalizeTrack)
       if (songs.length > 0) {
         const details = await getSongDetails(songs.map((s: Track) => s.id))
@@ -55,7 +65,9 @@ export default function SearchView({ onPlayTrack, currentTrack, initialQuery }: 
     } finally {
       setLoading(false)
     }
-  }, [query])
+  }, [])
+
+  const handleSearch = useCallback(() => doSearch(query), [query, doSearch])
 
   return (
     <div className="p-6 space-y-4">
