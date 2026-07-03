@@ -201,6 +201,36 @@ app.get('/api/playlist', async (req, res) => {
   }
 })
 
+// 推荐歌单
+app.get('/api/top/playlist', async (req, res) => {
+  try {
+    const { limit = 12, order = 'hot', offset = 0 } = req.query
+    const r = await fetch(`${API_BASE}/api/top/playlist?limit=${limit}&order=${order}&offset=${offset}`, {
+      headers: getHeaders(),
+    })
+    const data = await r.json()
+    res.json(data)
+  } catch (e) {
+    console.error('获取推荐歌单失败:', e)
+    res.status(500).json({ error: '获取推荐歌单失败' })
+  }
+})
+
+// 新歌速递
+app.get('/api/top/song', async (req, res) => {
+  try {
+    const { type = 0 } = req.query
+    const r = await fetch(`${API_BASE}/api/top/song?type=${type}`, {
+      headers: getHeaders(),
+    })
+    const data = await r.json()
+    res.json(data)
+  } catch (e) {
+    console.error('获取新歌失败:', e)
+    res.status(500).json({ error: '获取新歌失败' })
+  }
+})
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`)

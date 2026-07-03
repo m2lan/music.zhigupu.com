@@ -1,91 +1,64 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-@theme {
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
   --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
-  --color-surface-0: #0a0a0b;
-  --color-surface-1: #111113;
-  --color-surface-2: #1a1a1e;
-  --color-surface-3: #222228;
-  --color-accent: #64748b;
-  --color-accent-light: #94a3b8;
+  --radius: 0.5rem;
+
+  --color-background: oklch(0.145 0 0);
+  --color-foreground: oklch(0.93 0 0);
+  --color-card: oklch(0.18 0 0);
+  --color-card-foreground: oklch(0.93 0 0);
+  --color-popover: oklch(0.18 0 0);
+  --color-popover-foreground: oklch(0.93 0 0);
+  --color-primary: oklch(0.93 0 0);
+  --color-primary-foreground: oklch(0.145 0 0);
+  --color-secondary: oklch(0.22 0 0);
+  --color-secondary-foreground: oklch(0.93 0 0);
+  --color-muted: oklch(0.22 0 0);
+  --color-muted-foreground: oklch(0.63 0 0);
+  --color-accent: oklch(0.22 0 0);
+  --color-accent-foreground: oklch(0.93 0 0);
+  --color-destructive: oklch(0.577 0.245 27.325);
+  --color-border: oklch(1 0 0 / 8%);
+  --color-input: oklch(1 0 0 / 12%);
+  --color-ring: oklch(0.556 0 0);
+  --color-chart-1: oklch(0.87 0 0);
+  --color-chart-2: oklch(0.556 0 0);
+  --color-chart-3: oklch(0.439 0 0);
+  --color-chart-4: oklch(0.371 0 0);
+  --color-chart-5: oklch(0.269 0 0);
+  --color-sidebar: oklch(0.16 0 0);
+  --color-sidebar-foreground: oklch(0.93 0 0);
+  --color-sidebar-primary: oklch(0.93 0 0);
+  --color-sidebar-primary-foreground: oklch(0.145 0 0);
+  --color-sidebar-accent: oklch(0.22 0 0);
+  --color-sidebar-accent-foreground: oklch(0.93 0 0);
+  --color-sidebar-border: oklch(1 0 0 / 8%);
+  --color-sidebar-ring: oklch(0.556 0 0);
 }
 
-/* 噪点纹理叠加 */
-.noise-overlay::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0.03;
-  background-image: url("/noise.svg");
-  background-repeat: repeat;
-  background-size: 200px 200px;
-}
-
-/* 毛玻璃 */
-.glass {
-  background: rgba(17, 17, 19, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    overflow: hidden;
+  }
 }
 
 /* 自定义滚动条 */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.3);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.5);
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
-/* 歌词高亮过渡 */
-.lyric-line {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.lyric-line.active {
-  color: #e2e8f0;
-  transform: scale(1.02);
-  transform-origin: left center;
-}
-.lyric-line.inactive {
-  color: #57534e;
-}
-
-/* 进度条样式 */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-}
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 3px;
-  background: rgba(100, 116, 139, 0.2);
-  border-radius: 2px;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #94a3b8;
-  margin-top: -4.5px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-input[type="range"]:hover::-webkit-slider-thumb {
-  opacity: 1;
-}
-
-body {
-  margin: 0;
-  overflow: hidden;
-}
+/* 歌词高亮 */
+.lyric-line { transition: all 0.3s ease; }
+.lyric-line.active { color: hsl(var(--foreground)); transform: scale(1.02); transform-origin: left; }
+.lyric-line.inactive { color: hsl(var(--muted-foreground)); opacity: 0.5; }

@@ -12,3 +12,10 @@ export function formatSeconds(sec: number): string {
   const s = Math.floor(sec % 60)
   return `${min}:${s.toString().padStart(2, '0')}`
 }
+
+// 播放量格式化
+export function formatPlayCount(n: number): string {
+  if (n >= 100000000) return `${(n / 100000000).toFixed(1)}亿`
+  if (n >= 10000) return `${Math.floor(n / 10000)}万`
+  return String(n)
+}

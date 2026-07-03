@@ -1,22 +1,27 @@
 import { useState, useEffect, useCallback } from 'react'
-import Layout from './components/Layout'
-import Sidebar from './components/Sidebar'
-import SearchView from './components/SearchView'
-import LyricsPanel from './lyrics/LyricsPanel'
-import PlayerBar from './player/PlayerBar'
-import Visualizer from './components/Visualizer'
-import Login from './components/Login'
-import { usePlayer, audio } from './player/usePlayer'
-import { getLyrics, parseLRC } from './api/netease'
-import type { Track, Lyrics } from './api/types'
+import TopBar from '@/components/layout/TopBar'
+import Sidebar, { type View } from '@/components/layout/Sidebar'
+import PlayerBar from '@/components/layout/PlayerBar'
+import DiscoverView from '@/components/discover/DiscoverView'
+import SearchView from '@/components/search/SearchView'
+import PlaylistDetail from '@/components/playlist/PlaylistDetail'
+import RankingView from '@/components/ranking/RankingView'
+import LyricsPanel from '@/components/lyrics/LyricsPanel'
+import Login from '@/components/Login'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import { usePlayer } from '@/player/usePlayer'
+import { getLyrics, parseLRC } from '@/api/netease'
+import type { Track, Lyrics } from '@/api/types'
 
 const API = 'http://localhost:3001/api'
 
 function App() {
   const player = usePlayer()
-  const [activeView, setActiveView] = useState<'search' | 'lyrics'>('search')
+  const [view, setView] = useState<View>('discover')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [playlistId, setPlaylistId] = useState<number | null>(null)
   const [lyrics, setLyrics] = useState<Lyrics | null>(null)
-  const [loggedIn, setLoggedIn] = useState<boolean | null>(null) // null = 检查中
+  const [loggedIn, setLoggedIn] = useState<boolean | null>(null)
 
   // 检查登录状态
   useEffect(() => {
@@ -45,39 +50,86 @@ function App() {
     player.playTrack(track, queue)
   }, [player.playTrack])
 
-  const toggleLyrics = useCallback(() => {
-    setActiveView(prev => prev === 'lyrics' ? 'search' : 'lyrics')
+  const handleSearch = useCallback(() => {
+    if (searchQuery.trim()) {
+      setView('search')
+    }
+  }, [searchQuery])
+
+  const handleOpenPlaylist = useCallback((id: number) => {
+    setPlaylistId(id)
+    setView('playlist')
   }, [])
 
   // 加载中
   if (loggedIn === null) {
     return (
-      <div className="h-screen flex items-center justify-center bg-surface-0">
-        <div className="w-5 h-5 border-2 border-stone-700 border-t-stone-400 rounded-full animate-spin" />
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="w-5 h-5 border-2 border-muted border-t-foreground rounded-full animate-spin" />
       </div>
     )
   }
 
-  // 未登录 — 显示登录页
+  // 未登录
   if (!loggedIn) {
     return (
-      <div className="h-screen bg-surface-0 noise-overlay">
-        <Login onLogin={() => setLoggedIn(true)} onSkip={() => setLoggedIn(true)} />
-      </div>
+      <TooltipProvider>
+        <div className="h-screen bg-background">
+          <Login onLogin={() => setLoggedIn(true)} onSkip={() => setLoggedIn(true)} />
+        </div>
+      </TooltipProvider>
     )
   }
 
   return (
-    <Layout
-      sidebar={
-        <Sidebar activeView={activeView} onViewChange={setActiveView} />
-      }
-      visualizer={
-        player.currentTrack ? (
-          <Visualizer audioElement={audio} className="h-24 px-6 pt-4 shrink-0" />
-        ) : undefined
-      }
-      playerBar={
+    <TooltipProvider>
+      <div className="h-screen flex flex-col bg-background">
+        <TopBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSearch={handleSearch}
+          loggedIn={!!loggedIn}
+          onLogin={() => {}}
+        />
+
+        <div className="flex flex-1 min-h-0">
+          <Sidebar activeView={view} onViewChange={setView} />
+
+          <main className="flex-1 overflow-y-auto">
+            {view === 'discover' && (
+              <DiscoverView onOpenPlaylist={handleOpenPlaylist} />
+            )}
+            {view === 'search' && (
+              <SearchView
+                onPlayTrack={handlePlayTrack}
+                currentTrack={player.currentTrack}
+                initialQuery={searchQuery}
+              />
+            )}
+            {view === 'ranking' && (
+              <RankingView
+                onPlayTrack={handlePlayTrack}
+                currentTrack={player.currentTrack}
+              />
+            )}
+            {view === 'playlist' && playlistId && (
+              <PlaylistDetail
+                playlistId={playlistId}
+                onBack={() => setView('discover')}
+                onPlayTrack={handlePlayTrack}
+                currentTrack={player.currentTrack}
+              />
+            )}
+            {view === 'lyrics' && (
+              <LyricsPanel
+                lyrics={lyrics}
+                currentTime={player.currentTime}
+                albumCover={player.currentTrack?.album.picUrl}
+              />
+            )}
+          </main>
+        </div>
+
         <PlayerBar
           currentTrack={player.currentTrack}
           isPlaying={player.isPlaying}
@@ -91,23 +143,10 @@ function App() {
           onSeek={player.seek}
           onVolumeChange={player.setVolume}
           onModeChange={player.setMode}
-          onToggleLyrics={toggleLyrics}
+          onToggleLyrics={() => setView(v => v === 'lyrics' ? 'discover' : 'lyrics')}
         />
-      }
-    >
-      {activeView === 'search' ? (
-        <SearchView
-          onPlayTrack={handlePlayTrack}
-          currentTrack={player.currentTrack}
-        />
-      ) : (
-        <LyricsPanel
-          lyrics={lyrics}
-          currentTime={player.currentTime}
-          className="flex-1"
-        />
-      )}
-    </Layout>
+      </div>
+    </TooltipProvider>
   )
 }
 
