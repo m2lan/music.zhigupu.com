@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Noto Sans SC", system-ui, sans-serif;
+  --color-surface-0: #0a0a0b;
+  --color-surface-1: #111113;
+  --color-surface-2: #1a1a1e;
+  --color-surface-3: #222228;
+  --color-accent: #64748b;
+  --color-accent-light: #94a3b8;
+}
+
+/* 噪点纹理叠加 */
+.noise-overlay::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("/noise.svg");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* 毛玻璃 */
+.glass {
+  background: rgba(17, 17, 19, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5);
+}
+
+/* 歌词高亮过渡 */
+.lyric-line {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.lyric-line.active {
+  color: #e2e8f0;
+  transform: scale(1.02);
+  transform-origin: left center;
+}
+.lyric-line.inactive {
+  color: #57534e;
+}
+
+/* 进度条样式 */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 3px;
+  background: rgba(100, 116, 139, 0.2);
+  border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #94a3b8;
+  margin-top: -4.5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
