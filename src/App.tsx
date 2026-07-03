@@ -132,6 +132,8 @@ function App() {
                 lyrics={lyrics}
                 currentTime={player.currentTime}
                 albumCover={player.currentTrack?.album.picUrl}
+                trackName={player.currentTrack?.name}
+                artistName={player.currentTrack?.artists.map(a => a.name).join(' / ')}
               />
             )}
           </main>
