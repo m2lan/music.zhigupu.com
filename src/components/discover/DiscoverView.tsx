@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import PlaylistCard from './PlaylistCard'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ChevronRight } from 'lucide-react'
 
 const API = 'http://localhost:3001/api'
 
@@ -19,15 +20,29 @@ interface Props {
 export default function DiscoverView({ onOpenPlaylist }: Props) {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
-    fetch(`${API}/top/playlist?limit=12&order=hot`)
+    fetch(`${API}/top/playlist?limit=12`)
       .then(r => r.json())
-      .then(data => {
-        setPlaylists(data.playlists || [])
-      })
+      .then(data => setPlaylists(data.playlists || []))
       .catch(console.error)
       .finally(() => setLoading(false))
+  }, [])
+
+  const loadMore = useCallback(async () => {
+    setLoadingMore(true)
+    try {
+      const res = await fetch(`${API}/top/playlist?limit=30`)
+      const data = await res.json()
+      setPlaylists(data.playlists || [])
+      setShowAll(true)
+    } catch (e) {
+      console.error('加载更多失败:', e)
+    } finally {
+      setLoadingMore(false)
+    }
   }, [])
 
   return (
@@ -39,9 +54,16 @@ export default function DiscoverView({ onOpenPlaylist }: Props) {
             <h2 className="text-lg font-semibold">推荐歌单</h2>
             <p className="text-xs text-muted-foreground mt-0.5">根据你的喜好推荐</p>
           </div>
-          <button className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-            查看更多 →
-          </button>
+          {!showAll && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {loadingMore ? '加载中...' : '查看更多'}
+              <ChevronRight className="w-3 h-3" />
+            </button>
+          )}
         </div>
 
         {loading ? (
