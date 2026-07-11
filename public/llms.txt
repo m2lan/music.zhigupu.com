@@ -1,0 +1,51 @@
+# 沉 CHEN PLAYER
+
+> 基于网易云音乐 API 的现代 Web 音乐播放器。
+
+## 概述
+
+沉(CHEN PLAYER) 是一个开源的 Web 音乐播放器，使用 React + TypeScript + Vite 构建，后端通过 Express 代理网易云音乐 API。用户可以浏览推荐歌单、搜索歌曲、查看排行榜、同步显示歌词，并支持扫码登录播放 VIP 歌曲。
+
+## 主要功能
+
+- **推荐歌单**: 浏览网易云音乐精选歌单
+- **歌曲搜索**: 按关键词搜索歌曲、歌手、专辑
+- **排行榜**: 飙升榜、新歌榜、热歌榜、原创榜实时更新
+- **歌词同步**: LRC 格式歌词解析，支持翻译歌词双语显示
+- **播放控制**: 播放/暂停、上下曲、进度拖拽、音量调节、播放模式切换
+- **音频可视化**: 实时音频频谱可视化
+- **最近播放**: 本地记录播放历史
+- **扫码登录**: 网易云音乐账号登录，解锁 VIP 歌曲播放
+
+## 技术栈
+
+- 前端: React 19, TypeScript, Vite 8, Tailwind CSS 4, shadcn/ui
+- 后端: Express 5 (Node.js) API 代理
+- 图标: Lucide React
+- 字体: Inter, Noto Sans SC
+
+## API 接口
+
+后端代理以下网易云音乐 API:
+- GET /api/search — 搜索歌曲
+- POST /api/song/url — 获取播放链接
+- GET /api/song/detail — 歌曲详情
+- GET /api/lyric — 歌词
+- GET /api/playlist — 歌单详情
+- GET /api/top/playlist — 推荐歌单
+- GET /api/toplist — 排行榜
+- POST /api/login/qrcode/key — 登录二维码
+- GET /api/login/status — 登录状态
+
+## 使用方式
+
+访问 https://music.zhigupu.com/ ，可直接浏览推荐歌单和排行榜。扫码登录后可播放 VIP 歌曲和访问个人歌单。
+
+## 许可
+
+MIT License
+
+## 联系
+
+- 项目地址: https://github.com/m2lan/music.zhigupu.com
+- 网站: https://music.zhigupu.com/
